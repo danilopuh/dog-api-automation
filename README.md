@@ -1,6 +1,6 @@
 # 🐶 Dog API Automation
 
-[![CI/CD](https://github.com/SEU_USUARIO/dog-api-automation/actions/workflows/ci.yml/badge.svg)](https://github.com/SEU_USUARIO/dog-api-automation/actions/workflows/ci.yml)
+[![CI/CD](https://github.com/danilopuh/dog-api-automation/actions/workflows/ci.yml/badge.svg)](https://github.com/danilopuh/dog-api-automation/actions/workflows/ci.yml)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
 [![Maven](https://img.shields.io/badge/Maven-3.9+-blue.svg)](https://maven.apache.org/)
 [![RestAssured](https://img.shields.io/badge/RestAssured-5.5.0-green.svg)](https://rest-assured.io/)

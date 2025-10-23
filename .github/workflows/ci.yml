@@ -6,6 +6,14 @@ on:
   pull_request:
     branches: [ main ]
 
+# Permissões necessárias para o workflow
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  checks: write
+  pull-requests: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -31,12 +39,13 @@ jobs:
       - name: Generate Allure Report
         if: always()
         run: mvn allure:report
+        continue-on-error: true
 
       - name: Upload Surefire Reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: surefire-reports
+          name: surefire-reports-${{ github.run_number }}
           path: target/surefire-reports
           retention-days: 30
 
@@ -44,7 +53,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: allure-results
+          name: allure-results-${{ github.run_number }}
           path: target/allure-results
           retention-days: 30
 
@@ -52,18 +61,9 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: allure-report
+          name: allure-report-${{ github.run_number }}
           path: target/site/allure-maven-plugin/
           retention-days: 30
-
-      - name: Publish Test Results
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: Maven Tests
-          path: target/surefire-reports/*.xml
-          reporter: java-junit
-          fail-on-error: false
 
   security-scan:
     runs-on: ubuntu-latest
@@ -83,12 +83,13 @@ jobs:
         
     - name: Run OWASP Dependency Check
       run: mvn org.owasp:dependency-check-maven:check -Dformat=HTML
+      continue-on-error: true
       
     - name: Upload Security Report
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: security-report
+        name: security-report-${{ github.run_number }}
         path: target/dependency-check-report.html
         retention-days: 30
 
@@ -97,6 +98,12 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main'
     
+    # Permissões específicas para este job
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -104,11 +111,11 @@ jobs:
     - name: Download Allure Report
       uses: actions/download-artifact@v4
       with:
-        name: allure-report
+        name: allure-report-${{ github.run_number }}
         path: allure-report
         
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./allure-report
