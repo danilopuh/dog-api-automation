@@ -1,0 +1,23 @@
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+mvnw
+mvnw.cmd
+
+# IDEs
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Allure
+allure-results/
+allure-report/
+
+# Logs
+*.log
