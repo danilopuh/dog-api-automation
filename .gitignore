@@ -19,5 +19,8 @@ Thumbs.db
 allure-results/
 allure-report/
 
+# Cucumber Reports
+cucumber-reports/
+
 # Logs
 *.log

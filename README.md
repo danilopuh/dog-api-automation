@@ -5,7 +5,7 @@
 [![Maven](https://img.shields.io/badge/Maven-3.9+-blue.svg)](https://maven.apache.org/)
 [![RestAssured](https://img.shields.io/badge/RestAssured-5.5.0-green.svg)](https://rest-assured.io/)
 
-Testes automatizados para a [Dog API](https://dog.ceo/dog-api/documentation) usando **Java 21**, **RestAssured**, **JUnit 5** e **Allure Reports**.
+Testes automatizados para a [Dog API](https://dog.ceo/dog-api/documentation) usando **Java 21**, **Cucumber BDD**, **RestAssured**, **JUnit 5** e **Allure Reports**.
 
 ## 🎯 Endpoints Testados
 - `GET /breeds/list/all` - Lista todas as raças
@@ -15,6 +15,7 @@ Testes automatizados para a [Dog API](https://dog.ceo/dog-api/documentation) usa
 ## 📦 Stack Tecnológica
 - **Java 21** (LTS)
 - **Maven 3.9+**
+- **Cucumber 7.18.1** (BDD)
 - **RestAssured 5.5.0**
 - **JUnit 5.11.2** 
 - **Allure 2.29.0**
@@ -30,8 +31,15 @@ Testes automatizados para a [Dog API](https://dog.ceo/dog-api/documentation) usa
 
 ### Comandos
 ```bash
-# Executar todos os testes
+# Executar todos os testes (JUnit + Cucumber)
 mvn clean test
+
+# Executar apenas testes Cucumber
+mvn test -Dtest=CucumberTestRunner
+
+# Executar por tags específicas
+mvn test -Dcucumber.filter.tags="@smoke"
+mvn test -Dcucumber.filter.tags="@racas and not @negativo"
 
 # Compilar apenas
 mvn clean compile test-compile
@@ -57,28 +65,58 @@ mvn clean package
 - Relatório: `target/site/allure-maven-plugin/`
 - **GitHub Pages**: Relatórios publicados automaticamente na branch `gh-pages`
 
+### Cucumber
+- Relatórios HTML: `target/cucumber-reports.html`
+- Relatórios JSON: `target/cucumber-reports/cucumber.json`
+- Relatórios JUnit: `target/cucumber-reports/cucumber.xml`
+
 ## 🧪 Cenários de Teste
 
-| Teste | Validações | Tempo Limite |
-|-------|------------|--------------|
-| **Lista de Raças** | Status 200, Schema JSON, Presença de raças | < 2s |
-| **Imagens por Raça** | Status 200, Schema JSON, URLs válidas | < 3s |
-| **Imagem Aleatória** | Status 200, Schema JSON, URL com extensão | < 2s |
-| **Raça Inexistente** | Erro coerente (404 ou status=error) | - |
-| **Performance** | Latência básica e contratos | < 2.5s |
+### Formato BDD (Cucumber)
+Os testes estão escritos em **Gherkin** (português) no arquivo `features/dog_api.feature`:
 
-## � Estrutura do Projeto
+| Cenário | Tags | Validações | Tempo Limite |
+|---------|------|------------|--------------|
+| **Lista de Raças** | `@smoke @racas` | Status 200, Schema JSON, Presença de raças | < 2s |
+| **Imagens por Raça** | `@imagens @racas` | Status 200, Schema JSON, URLs válidas | < 3s |
+| **Imagem Aleatória** | `@imagens @aleatorio` | Status 200, Schema JSON, URL com extensão | < 2s |
+| **Raças Inexistentes** | `@negativo @racas` | Erro coerente (404 ou status=error) | - |
+| **Performance** | `@performance @contratos` | Latência básica e contratos | < 2.5s |
+
+### Execução por Tags
+```bash
+# Testes de fumaça
+mvn test -Dcucumber.filter.tags="@smoke"
+
+# Testes de imagens
+mvn test -Dcucumber.filter.tags="@imagens"
+
+# Testes negativos
+mvn test -Dcucumber.filter.tags="@negativo"
+
+# Combinações
+mvn test -Dcucumber.filter.tags="@racas and not @negativo"
+```
+
+## 🔧 Estrutura do Projeto
 ```
 src/
 ├── test/
 │   ├── java/br/com/dogapi/
-│   │   ├── tests/DogApiTest.java      # Testes principais
-│   │   └── utils/SchemaValidator.java # Validador de schema
-│   └── resources/schemas/             # Schemas JSON
-│       ├── list_all_schema.json
-│       ├── breed_images_schema.json
-│       └── random_image_schema.json
-└── .github/workflows/ci.yml           # Pipeline CI/CD
+│   │   ├── tests/DogApiTest.java           # Testes JUnit originais
+│   │   ├── cucumber/
+│   │   │   ├── CucumberTestRunner.java     # Runner Cucumber
+│   │   │   ├── steps/DogApiSteps.java      # Step Definitions
+│   │   │   └── hooks/TestHooks.java        # Setup/Teardown
+│   │   └── utils/SchemaValidator.java      # Validador de schema
+│   └── resources/
+│       ├── features/dog_api.feature        # Cenários BDD em Gherkin
+│       ├── cucumber.properties             # Configuração Cucumber
+│       └── schemas/                        # Schemas JSON
+│           ├── list_all_schema.json
+│           ├── breed_images_schema.json
+│           └── random_image_schema.json
+└── .github/workflows/ci-simple.yml         # Pipeline CI/CD
 ```
 
 ## 🔄 Pipeline CI/CD
